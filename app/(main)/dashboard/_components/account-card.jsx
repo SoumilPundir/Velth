@@ -27,7 +27,7 @@ export function AccountCard({ account }) {
   } = useFetch(updateDefaultAccount);
 
   const handleDefaultChange = async (event) => {
-    event.preventDefault(); // Prevent navigation
+    // event.preventDefault(); // Prevent navigation
 
     if (isDefault) {
       toast.warning("You need atleast 1 default account");
@@ -41,7 +41,7 @@ export function AccountCard({ account }) {
     if (updatedAccount?.success) {
       toast.success("Default account updated successfully");
     }
-  }, [updatedAccount]);
+  }, [updatedAccount, updateDefaultLoading]);
 
   useEffect(() => {
     if (error) {
@@ -82,5 +82,43 @@ export function AccountCard({ account }) {
         </CardFooter>
       </Link>
     </Card>
+
+    // <Card className="hover:shadow-md transition-shadow group relative">
+    //   <div className="absolute top-3 right-3 z-20">
+    //     <Switch
+    //       checked={isDefault}
+    //       onCheckedChange={handleDefaultChange}
+    //       disabled={updateDefaultLoading}
+    //     />
+    //   </div>
+
+    //   <Link href={`/account/${id}`} className="block">
+    //     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    //       <CardTitle className="text-sm font-medium capitalize">
+    //         {name}
+    //       </CardTitle>
+    //     </CardHeader>
+
+    //     <CardContent>
+    //       <div className="text-2xl font-bold">
+    //         ${parseFloat(balance).toFixed(2)}
+    //       </div>
+    //       <p className="text-xs text-muted-foreground">
+    //         {type.charAt(0) + type.slice(1).toLowerCase()} Account
+    //       </p>
+    //     </CardContent>
+
+    //     <CardFooter className="flex justify-between text-sm text-muted-foreground">
+    //       <div className="flex items-center">
+    //         <ArrowUpRight className="mr-1 h-4 w-4 text-green-500" />
+    //         Income
+    //       </div>
+    //       <div className="flex items-center">
+    //         <ArrowDownRight className="mr-1 h-4 w-4 text-red-500" />
+    //         Expense
+    //       </div>
+    //     </CardFooter>
+    //   </Link>
+    // </Card>
   );
 }
