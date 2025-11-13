@@ -90,7 +90,7 @@ export async function updateBudget(amount) {
 
     revalidatePath("/dashboard");
     return {
-      success: true,
+      success: true, 
       data: { ...budget, amount: budget.amount.toNumber() },
     };
   } catch (error) {

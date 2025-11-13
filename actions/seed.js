@@ -3,10 +3,10 @@
 import { db } from "@/lib/prisma";
 import { subDays } from "date-fns";
 
-const ACCOUNT_ID = "68939c5b-085a-49f7-9bef-cb5bddebaae2";
-const USER_ID = "c7760b5b-3a5a-4b18-8ea0-64904a43aeef";
+const ACCOUNT_ID = "d4756d09-6f98-4a85-a2a6-1356bbce71eb";
+const USER_ID = "ada3c985-e82a-4db4-bc6e-4cef7dd8770c";
 
-// Categories with their typical amount ranges
+// Categories with their amount ranges
 const CATEGORIES = {
   INCOME: [
     { name: "salary", range: [5000, 8000] },

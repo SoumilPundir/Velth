@@ -51,12 +51,14 @@ export async function getUserAccounts() {
   }
 }
 
+
+
 export async function createAccount(data) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    // Get request data for ArcJet
+    // // Get request data for ArcJet
     // const req = await request();
 
     // // Check rate limit
@@ -127,30 +129,31 @@ export async function createAccount(data) {
     // Serialize the account before returning
     const serializedAccount = serializeTransaction(account);
 
+
     revalidatePath("/dashboard");
     return { success: true, data: serializedAccount };
   } catch (error) {
     throw new Error(error.message);
-  } 
+  }
 }
 
-// export async function getDashboardData() {
-//   const { userId } = await auth();
-//   if (!userId) throw new Error("Unauthorized");
+export async function getDashboardData() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
 
-//   const user = await db.user.findUnique({
-//     where: { clerkUserId: userId },
-//   });
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+  });
 
-//   if (!user) {
-//     throw new Error("User not found");
-//   }
+  if (!user) {
+    throw new Error("User not found");
+  }
 
-//   // Get all user transactions
-//   const transactions = await db.transaction.findMany({
-//     where: { userId: user.id },
-//     orderBy: { date: "desc" },
-//   });
+  // Get all user transactions
+  const transactions = await db.transaction.findMany({
+    where: { userId: user.id },
+    orderBy: { date: "desc" },
+  });
 
-//   return transactions.map(serializeTransaction);
-// }
+  return transactions.map(serializeTransaction);
+}

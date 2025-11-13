@@ -25,20 +25,17 @@ export async function getAccountWithTransactions(accountId) {
 
   if (!user) throw new Error("User not found");
 
-  const account = await db.account.findFirst({
-    where: {
-      id: accountId,
-      userId: user.id,
+const account = await db.account.findFirst({
+  where: { id: accountId, userId: user.id },
+  include: {
+    transactions: {
+      where: { accountId },         // only this account’s transactions
+      orderBy: { date: "desc" },
     },
-    include: {
-      transactions: {
-        orderBy: { date: "desc" },
-      },
-      _count: {
-        select: { transactions: true },
-      },
-    },
-  });
+    _count: { select: { transactions: true } },
+  },
+});
+
 
   if (!account) return null;
 
@@ -79,8 +76,9 @@ export async function updateDefaultAccount(accountId) {
       data: { isDefault: true },
     });
 
-    console.log("✅ Updated account:", account);
-    revalidatePath("/dashboard");
+
+
+    revalidatePath("/dashboard");  
     return { success: true, data: serializeTransaction(account) };
   } catch (error) {
     return { success: false, error: error.message };

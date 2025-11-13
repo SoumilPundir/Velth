@@ -42,7 +42,7 @@ export async function createTransaction(data) {
       }
 
       throw new Error("Request blocked");
-    } 
+    }
 
     const user = await db.user.findUnique({
       where: { clerkUserId: userId },
@@ -59,11 +59,11 @@ export async function createTransaction(data) {
       throw new Error("User not found");
     }
 
-    // Calculating the new balance
+    // Calculate the new balance
     const balanceChange = data.type === "EXPENSE" ? -data.amount : data.amount;
     const newBalance = account.balance.toNumber() + balanceChange;
 
-    // Creating transaction using prisma transaction and updating account balance
+    // Create transaction using prisma transaction and update account balance
     const transaction = await db.$transaction(async (tx) => {
       const newTransaction = await tx.transaction.create({
         data: {
@@ -75,7 +75,7 @@ export async function createTransaction(data) {
               : null,
         },
       });
-        await tx.account.update({
+      await tx.account.update({
         where: { id: data.accountId },
         data: { balance: newBalance },
       });
@@ -87,11 +87,10 @@ export async function createTransaction(data) {
     revalidatePath(`/account/${transaction.accountId}`);
 
     return { success: true, data: serializeAmount(transaction) };
-  } catch(error) {
+  } catch (error) {
     throw new Error(error.message);
   }
 }
-
 
 // Helper function to calculate next recurring date
 function calculateNextRecurringDate(startDate, interval) {
@@ -115,11 +114,11 @@ function calculateNextRecurringDate(startDate, interval) {
   return date;
 }
 
-export async function scanReceipt(file){
-  try{
-     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+export async function scanReceipt(file) {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-     // Convert File to ArrayBuffer
+    // Convert File to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();
     // Convert ArrayBuffer to Base64
     const base64String = Buffer.from(arrayBuffer).toString("base64");
@@ -154,11 +153,10 @@ export async function scanReceipt(file){
       prompt,
     ]);
 
-
     const response = await result.response;
     const text = response.text();
     const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
-      try {
+    try {
       const data = JSON.parse(cleanedText);
       return {
         amount: parseFloat(data.amount),
@@ -174,5 +172,101 @@ export async function scanReceipt(file){
   } catch (error) {
     console.error("Error scanning receipt:", error);
     throw new Error("Failed to scan receipt");
+  }
+}
+
+// Get User Transactions
+export async function getTransaction(id) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) throw new Error("User not found");
+
+  const transaction = await db.transaction.findUnique({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
+
+  if (!transaction) throw new Error("Transaction not found");
+
+  return serializeAmount(transaction);
+}
+
+export async function updateTransaction(id, data) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    // Get original transaction to calculate balance change
+    const originalTransaction = await db.transaction.findUnique({
+      where: {
+        id,
+        userId: user.id,
+      },
+      include: {
+        account: true,
+      },
+    });
+
+    if (!originalTransaction) throw new Error("Transaction not found");
+
+    // Calculate balance changes
+    const oldBalanceChange =
+      originalTransaction.type === "EXPENSE"
+        ? -originalTransaction.amount.toNumber()
+        : originalTransaction.amount.toNumber();
+
+    const newBalanceChange =
+      data.type === "EXPENSE" ? -data.amount : data.amount;
+
+    const netBalanceChange = newBalanceChange - oldBalanceChange;
+
+    // Update transaction and account balance in a transaction
+    const transaction = await db.$transaction(async (tx) => {
+      const updated = await tx.transaction.update({
+        where: {
+          id,
+          userId: user.id,
+        },
+        data: {
+          ...data,
+          nextRecurringDate:
+            data.isRecurring && data.recurringInterval
+              ? calculateNextRecurringDate(data.date, data.recurringInterval)
+              : null,
+        },
+      });
+
+      // Update account balance
+      await tx.account.update({
+        where: { id: data.accountId },
+        data: {
+          balance: {
+            increment: netBalanceChange,
+          },
+        },
+      });
+
+      return updated;
+    });
+
+    revalidatePath("/dashboard");
+    revalidatePath(`/account/${data.accountId}`);
+
+    return { success: true, data: serializeAmount(transaction) };
+  } catch (error) {
+    throw new Error(error.message);
   }
 }
