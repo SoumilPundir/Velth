@@ -31,7 +31,7 @@ const HeroSection = () => {
           Manage Your Finances <br /> with Intelligence
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          An AI-Powered finanacial management platform to help you track,
+          An AI-Powered financial management platform to help you track,
           analyze, and optimize your spending habits effortlessly.
         </p>
       </div>
@@ -43,7 +43,7 @@ const HeroSection = () => {
         </Link>
 
         <Link
-          href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          href="https://youtu.be/OZUdk3GzGu8"
           target="_blank"
           className="ml-4"
         >
