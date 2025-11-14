@@ -7,8 +7,13 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Velth",
+  title: "Stash",
   description: "The Financial Platform",
+  icons: {
+    icon: "/logo-sm.png",
+    shortcut: "/logo-sm.png",
+    apple: "/logo-sm.png",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -23,7 +28,7 @@ export default function RootLayout({ children }) {
           {/* {footer} */}
           <footer className="bg-blue-50 py-12">
             <div className="container mx-auto px-4 text-center text-gray-600">
-              <p>Made with ❤️ by Soumil Pundir</p>
+              <p>&copy; 2025 Stash. All rights reserved.</p>
             </div>
           </footer>
         </body>
