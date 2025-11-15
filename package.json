@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "email": "email dev",
+    "prebuild": "prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
