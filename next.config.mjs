@@ -17,6 +17,13 @@ const nextConfig = {
   },
   
   reactCompiler: true,
+
+  // Ensure Prisma files are included in the deployment
+  outputFileTracingIncludes: {
+    '/api/**': ['./node_modules/.prisma/**/*'],
+    '/dashboard/**': ['./node_modules/.prisma/**/*'],
+    '/transaction/**': ['./node_modules/.prisma/**/*'],
+  },
 };
 
 export default nextConfig;
